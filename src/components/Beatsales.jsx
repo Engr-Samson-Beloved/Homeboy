@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Filter } from 'lucide-react';
+import { useSpring, animated, config } from 'react-spring';
 import AudioPlayer from './AudioPlayer';
 
 const beatCategories = [
@@ -16,13 +18,13 @@ const beatCategories = [
 const initialBeats = [
   {
     id: 1,
-    name: "Trap Beats Vol.1",
+    name: "Drill Beat",
     genre: "Trap",
     category: "Aggressive",
     price: 29.99,
-    preview: "/beats/trap1.mp3",
-    thumbnail: "/placeholder.svg?height=400&width=400",
-    isLicensed: false
+    preview: "/Drill Beat.mp3",
+    thumbnail: "/4.png?height=400&width=400",
+    isLicensed: true
   },
   {
     id: 2,
@@ -31,7 +33,7 @@ const initialBeats = [
     category: "Classic",
     price: 34.99,
     preview: "/beats/hiphop1.mp3",
-    thumbnail: "/placeholder.svg?height=400&width=400",
+    thumbnail: "/4.jpg?height=400&width=400",
     isLicensed: false
   },
   {
@@ -41,7 +43,7 @@ const initialBeats = [
     category: "Melodic",
     price: 39.99,
     preview: "/beats/rnb1.mp3",
-    thumbnail: "/placeholder.svg?height=400&width=400",
+    thumbnail: "/1.jpg?height=400&width=400",
     isLicensed: false
   },
   {
@@ -51,7 +53,7 @@ const initialBeats = [
     category: "Relaxed",
     price: 24.99,
     preview: "/beats/lofi1.mp3",
-    thumbnail: "/placeholder.svg?height=400&width=400",
+    thumbnail: "/5.png?height=400&width=400",
     isLicensed: false
   },
   {
@@ -61,17 +63,67 @@ const initialBeats = [
     category: "High Energy",
     price: 44.99,
     preview: "/beats/electronic1.mp3",
-    thumbnail: "/placeholder.svg?height=400&width=400",
+    thumbnail: "/3.png?height=400&width=400",
     isLicensed: false
   }
 ];
 
-const Beatsales = ({ isDarkMode, onClose }) => {
+const Beatsales = ({ isDarkMode }) => {
+  const navigate = useNavigate(); // Add navigation hook
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [cart, setCart] = useState([]);
   const [allBeats, setAllBeats] = useState(initialBeats);
+  const [hoveredBeat, setHoveredBeat] = useState(null);
+
+  // Handle Close with Navigation
+  const handleClose = () => {
+    navigate('/'); // Navigate back to home page
+  };
+
+  // Animated Background
+  const backgroundProps = useSpring({
+    from: { 
+      background: isDarkMode 
+        ? 'linear-gradient(135deg, #1e1e1e 0%, #121212 100%)' 
+        : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' 
+    },
+    to: { 
+      background: isDarkMode 
+        ? 'linear-gradient(135deg, #121212 0%, #1e1e1e 100%)' 
+        : 'linear-gradient(135deg, #c3cfe2 0%, #f5f7fa 100%)' 
+    },
+    config: config.gentle,
+    loop: { reverse: true }
+  });
+
+  // Beat Card Animation
+  const getBeatCardProps = (beat) => useSpring({
+    from: { 
+      transform: 'scale(0.9)', 
+      opacity: 0.7 
+    },
+    to: { 
+      transform: hoveredBeat === beat.id ? 'scale(1.05)' : 'scale(1)', 
+      opacity: hoveredBeat === beat.id ? 1 : 0.9 
+    },
+    config: config.wobbly
+  });
+
+  // Cart Animation
+  const cartProps = useSpring({
+    from: { 
+      opacity: 0, 
+      transform: 'translateY(50px)' 
+    },
+    to: { 
+      opacity: cart.length > 0 ? 1 : 0, 
+      transform: cart.length > 0 ? 'translateY(0px)' : 'translateY(50px)' 
+    },
+    config: config.stiff
+  });
 
   const filteredBeats = allBeats.filter(beat => 
     beat.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -97,17 +149,29 @@ const Beatsales = ({ isDarkMode, onClose }) => {
   };
 
   return (
-    <div className={`
-      min-h-screen p-8
-      ${isDarkMode 
-        ? 'bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white' 
-        : 'bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-900'}
-    `}>
+    <animated.div 
+      style={{
+        ...backgroundProps,
+        minHeight: '100vh',
+        padding: '2rem',
+        color: isDarkMode ? 'white' : 'black'
+      }}
+      className={`
+        ${isDarkMode ? 'text-white' : 'text-gray-900'}
+      `}
+    >
       {/* Header with Close Button */}
-      <div className="flex justify-between items-center mb-8">
+      <animated.div 
+        style={useSpring({
+          from: { opacity: 0, transform: 'translateY(-20px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+          config: config.gentle
+        })}
+        className="flex justify-between items-center mb-8"
+      >
         <h1 className="text-3xl font-bold">Beat Marketplace</h1>
         <button 
-          onClick={onClose}
+          onClick={handleClose} // Updated to use handleClose
           className={`
             px-4 py-2 rounded-lg
             ${isDarkMode 
@@ -117,10 +181,18 @@ const Beatsales = ({ isDarkMode, onClose }) => {
         >
           Close
         </button>
-      </div>
+      </animated.div>
 
       {/* Search and Filter Section */}
-      <div className="mb-8 flex space-x-4">
+      <animated.div 
+        style={useSpring({
+          from: { opacity: 0, transform: 'translateY(20px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+          config: config.gentle,
+          delay: 100
+        })}
+        className="mb-8 flex space-x-4"
+      >
         <div className="flex-grow relative">
           <input 
             type="text" 
@@ -142,7 +214,6 @@ const Beatsales = ({ isDarkMode, onClose }) => {
           />
         </div>
 
-        {/* Genre Filter */}
         <select 
           value={selectedGenre}
           onChange={(e) => setSelectedGenre(e.target.value)}
@@ -159,7 +230,6 @@ const Beatsales = ({ isDarkMode, onClose }) => {
           ))}
         </select>
 
-        {/* Category Filter */}
         <select 
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -175,19 +245,21 @@ const Beatsales = ({ isDarkMode, onClose }) => {
             <option key={category} value={category}>{category}</option>
           ))}
         </select>
-      </div>
+      </animated.div>
 
       {/* Beats Grid */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         {filteredBeats.map((beat) => (
-          <div 
+          <animated.div 
             key={beat.id}
+            style={getBeatCardProps(beat)}
+            onMouseEnter={() => setHoveredBeat(beat.id)}
+            onMouseLeave={() => setHoveredBeat(null)}
             className={`
-              rounded-lg overflow-hidden shadow-lg
+              rounded-lg overflow-hidden shadow-xl
               ${isDarkMode 
                 ? 'bg-gray-800 border border-gray-700' 
                 : 'bg-white border border-gray-200'}
-              transform transition-all duration-300 hover:scale-105
             `}
           >
             <img 
@@ -230,17 +302,20 @@ const Beatsales = ({ isDarkMode, onClose }) => {
                 </button>
               </div>
             </div>
-          </div>
+          </animated.div>
         ))}
       </div>
 
-      {/* Cart Section */}
+      {/* Animated Cart Section */}
       {cart.length > 0 && (
-        <div className={`
-          fixed bottom-0 left-0 right-0 p-4
-          ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}
-          shadow-2xl
-        `}>
+        <animated.div 
+          style={cartProps}
+          className={`
+            fixed bottom-0 left-0 right-0 p-4
+            ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}
+            shadow-2xl
+          `}
+        >
           <div className="container mx-auto flex justify-between items-center">
             <div>
               <h3 className="font-bold">Your Cart</h3>
@@ -259,18 +334,17 @@ const Beatsales = ({ isDarkMode, onClose }) => {
                   px-4 py-2 rounded-lg
                   ${isDarkMode 
                     ? 'bg-green-600 text-white hover:bg-green-700' 
-                    : 'bg-green-500 text-white hover:bg-green-600'}
+                    : 'bg-green-500 text-white hover:bg-blue-600'}
                 `}
               >
                 Checkout
               </button>
             </div>
           </div>
-        </div>
+        </animated.div>
       )}
-    </div>
+    </animated.div>
   );
 };
 
 export default Beatsales;
-

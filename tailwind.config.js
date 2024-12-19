@@ -7,7 +7,8 @@ export default {
     "./src/components/Header.jsx",
     "./src/components/Footer.jsx",
     "./src/components/IntroTransition.jsx",
-    "./src/components/Beatsales.jsx"
+    "./src/components/Beatsales.jsx",
+    "./src/components/Contact.jsx"
   ],
   theme: {
     extend: {},

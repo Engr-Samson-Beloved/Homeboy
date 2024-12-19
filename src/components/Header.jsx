@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -13,10 +14,10 @@ const Header = ({ toggleTheme, isDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'Beats', href: '#beats' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' }
+    { name: 'Home', to: '/' },
+    { name: 'Beats', to: '/beatsales' },
+    { name: 'About', to: '/Intro' },
+    { name: 'Contact', to: '/Contact' }
   ];
 
   return (
@@ -65,9 +66,10 @@ const Header = ({ toggleTheme, isDarkMode }) => {
           `}>
             <div className="flex flex-col p-4 space-y-4">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.to}
+                  onClick={() => setIsMenuOpen(false)}
                   className={`
                     block py-2 px-3 rounded-lg
                     ${isDarkMode 
@@ -77,7 +79,7 @@ const Header = ({ toggleTheme, isDarkMode }) => {
                   `}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
 
               {/* Mobile Action Buttons */}
@@ -122,9 +124,9 @@ const Header = ({ toggleTheme, isDarkMode }) => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
+              to={item.to}
               className={`
                 ${isDarkMode 
                   ? 'text-gray-300 hover:text-white' 
@@ -133,7 +135,7 @@ const Header = ({ toggleTheme, isDarkMode }) => {
               `}
             >
               {item.name}
-            </a>
+            </Link>
           ))}
         </nav>
 
